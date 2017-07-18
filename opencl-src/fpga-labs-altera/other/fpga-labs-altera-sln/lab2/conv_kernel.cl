@@ -6,9 +6,9 @@
 __kernel  __attribute__ ((reqd_work_group_size(IMAGE_WIDTH, (IMAGE_HEIGHT+NO_COMPUTE_UNITS-1)/NO_COMPUTE_UNITS, 1)))
 __attribute__ ((num_compute_units(NO_COMPUTE_UNITS)))
 void conv_2d(
-    __global float *in,               // W*H input images
-    __constant float *filt,           // K*K filter kernel
-    __global float *out,              // W*H output images
+    __global float * restrict in,               // W*H input images
+    __constant float * restrict filt,           // K*K filter kernel
+    __global float * restrict out,              // W*H output images
     const float pBias)                // constant offset/bias
 {
     __local float __attribute__((numbanks(4), bankwidth(32))) image_buff[IMAGE_WIDTH * ((IMAGE_HEIGHT+NO_COMPUTE_UNITS-1)/NO_COMPUTE_UNITS + FILTER_SIZE-1)];

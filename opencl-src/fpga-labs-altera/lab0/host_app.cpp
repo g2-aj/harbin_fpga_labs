@@ -97,7 +97,7 @@ int main(int argc, char** argv)
     printf("Application start\n");
     const double start_time = getCurrentTimestamp();
     if (argc != 3) {
-        printf("Usage: %s <kernel_name>.aocx image_path/image_name.pgm\n", argv[0]);
+        printf("Usage: %s conv_kernel image_path/image_name.pgm\n", argv[0]);
         return EXIT_FAILURE;
     }
 

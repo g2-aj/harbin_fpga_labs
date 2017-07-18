@@ -66,12 +66,12 @@ TARGET_HW := lab0-hw
 TARGET_DIR := bin
 
 # Directories
-INC_DIRS := ../../common/inc
+INC_DIRS := ../../../../common/inc
 LIB_DIRS := 
 
 # Files
 INCS := $(wildcard *.h)
-SRCS := $(wildcard *.cpp ../../common/src/AOCLUtils/*.cpp)
+SRCS := $(wildcard *.cpp ../../../../common/src/AOCLUtils/*.cpp)
 LIBS := rt
 
 # Make it all!
