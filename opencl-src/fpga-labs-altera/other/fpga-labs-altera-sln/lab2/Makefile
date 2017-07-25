@@ -25,7 +25,6 @@
 # See http://www.altera.com/literature/hb/opencl-sdk/aocl_getting_started.pdf 
 # for more information on installing and configuring the Altera SDK for OpenCL.
 VERBOSE:=1
-EMU:=1
 ifeq ($(VERBOSE),1)
 ECHO := 
 else
@@ -41,13 +40,10 @@ $(error Set ALTERAOCLSDKROOT to the root directory of the Altera SDK for OpenCL 
 endif
 
 # OpenCL compile and link flags.
-ifeq ($(EMU), 1)
 AOCL_COMPILE_CONFIG := $(shell aocl compile-config )
 AOCL_LINK_CONFIG := -Wl,--no-as-needed $(shell aocl link-config)
-else 
-AOCL_COMPILE_CONFIG := $(shell aocl compile-config --arm )
-AOCL_LINK_CONFIG := -Wl,--no-as-needed $(shell aocl link-config --arm)
-endif
+AOCL_COMPILE_CONFIG_HW := $(shell aocl compile-config --arm)
+AOCL_LINK_CONFIG_HW := -Wl,--no-as-needed $(shell aocl link-config --arm)
     
 
 # Compilation flags
@@ -66,12 +62,12 @@ TARGET_HW := lab2-hw
 TARGET_DIR := bin
 
 # Directories
-INC_DIRS := ../../../../common/inc
+INC_DIRS := ../../common/inc
 LIB_DIRS := 
 
 # Files
 INCS := $(wildcard *.h)
-SRCS := $(wildcard *.cpp ../../../../common/src/AOCLUtils/*.cpp)
+SRCS := $(wildcard *.cpp ../../common/src/AOCLUtils/*.cpp)
 LIBS := rt
 
 # Make it all!
@@ -88,7 +84,7 @@ $(TARGET_DIR)/$(TARGET_EMU) : Makefile $(SRCS) $(INCS) $(TARGET_DIR)
 
 $(TARGET_DIR)/$(TARGET_HW) : Makefile $(SRCS) $(INCS) $(TARGET_DIR)
 	$(ECHO)$(CROSS-COMPILE)$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fPIC $(foreach D,$(INC_DIRS),-I$D) \
-			$(AOCL_COMPILE_CONFIG) $(SRCS) $(AOCL_LINK_CONFIG) \
+			$(AOCL_COMPILE_CONFIG_HW) $(SRCS) $(AOCL_LINK_CONFIG_HW) \
 			$(foreach D,$(LIB_DIRS),-L$D) \
 			$(foreach L,$(LIBS),-l$L) \
 			-o $(TARGET_DIR)/$(TARGET_HW)
