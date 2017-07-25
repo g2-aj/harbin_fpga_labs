@@ -15,8 +15,7 @@ void __conv_2d(
 
     float sum = 0;
         
-    // loop over rows - "pragma unroll 1" directive to not unroll outer loop
-    // inner loop will be unrolled automatically
+    // loop over rows - "pragma unroll 1" directive to not unroll either loop
     #pragma unroll 1
     for (int r = 0; r < FILTER_SIZE; r++) 
     {

@@ -10,11 +10,12 @@ void conv_2d(
     const float pBias)                // constant offset/bias
 {
 
-    // TODO: Specify an on-chip (local) memory for the image
-    // TODO: Specify an on-chip (local) memory for the filter
+    // TODO: Specify an on-chip (local) memory for the image (see handout)
+    // TODO: Specify an on-chip (local) memory for the filter (see handout)
 
     int x = get_local_id(0);
     int y = get_local_id(1);
+
     // TODO: Uncomment the following block of code which copies one pixel
     // from the global memory into the on-chip memory specified above
     // Note: each work item copies a single pixel into the local memory
@@ -26,7 +27,6 @@ void conv_2d(
     local_image[y * IMAGE_WIDTH + x] = in[y * IMAGE_WIDTH + x];
     */
     
-
     // wait for all work items to copy their share as each work item
     // requires 3x3 neighbor instead of single pixel
     barrier(CLK_LOCAL_MEM_FENCE);
@@ -36,6 +36,8 @@ void conv_2d(
     // loop over rows
     int i = get_local_id(0);
     int j = get_local_id(1);
+
+    // "#pragma unroll" directive to fully unroll both loops
     #pragma unroll
     for (int r = 0; r < FILTER_SIZE; r++) 
     {

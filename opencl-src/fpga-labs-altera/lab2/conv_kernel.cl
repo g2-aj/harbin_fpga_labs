@@ -4,15 +4,15 @@
 #define FILTER_SIZE    (3)
 
 __kernel  __attribute__ ((reqd_work_group_size(IMAGE_WIDTH, (IMAGE_HEIGHT+NO_COMPUTE_UNITS-1)/NO_COMPUTE_UNITS, 1)))
-// TODO: add attribute to specify multiple compute units
+// TODO: add attribute to specify multiple compute units (see handout)
 void conv_2d(
     __global float *in,               // W*H input images
     __constant float *filt,           // K*K filter kernel
     __global float *out,              // W*H output images
     const float pBias)                // constant offset/bias
 {
+	// store filter coefficients and the image in the local on-chip memory for faster access.
     __local float image_buff[IMAGE_WIDTH * ((IMAGE_HEIGHT+NO_COMPUTE_UNITS-1)/NO_COMPUTE_UNITS + FILTER_SIZE-1)];
-	// store filter coefficients in the register file for faster access.
     __local float local_filt[FILTER_SIZE * FILTER_SIZE];
 
     int x = get_local_id(0);
@@ -22,7 +22,9 @@ void conv_2d(
         local_filt[x] = filt[x];
     }
     image_buff[y * IMAGE_WIDTH + x] = in[row * IMAGE_WIDTH + x];
-    // TODO: Uncomment following code that transfers FILTER_SIZE-1 extra rows. The work items corresponding to last FILTER_SIZE-1
+
+    // TODO: Uncomment following code that transfers FILTER_SIZE-1 extra rows. 
+    // The work items corresponding to last FILTER_SIZE-1
     // rows take responsibility to transfer this extra rows.
     /*if(y > (get_local_size(1) - FILTER_SIZE)) {
         image_buff[(y+FILTER_SIZE-1)*IMAGE_WIDTH + x] = in[(row+FILTER_SIZE-1)*IMAGE_WIDTH + x];
@@ -37,6 +39,7 @@ void conv_2d(
     // loop over rows
     int i = get_local_id(0);
     int j = get_local_id(1);
+    
     #pragma unroll
     for (int r = 0; r < FILTER_SIZE; r++) 
     {
