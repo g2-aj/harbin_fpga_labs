@@ -25,7 +25,6 @@
 # See http://www.altera.com/literature/hb/opencl-sdk/aocl_getting_started.pdf 
 # for more information on installing and configuring the Altera SDK for OpenCL.
 VERBOSE:=1
-EMU:=1
 ifeq ($(VERBOSE),1)
 ECHO := 
 else
@@ -41,13 +40,10 @@ $(error Set ALTERAOCLSDKROOT to the root directory of the Altera SDK for OpenCL 
 endif
 
 # OpenCL compile and link flags.
-ifeq ($(EMU), 1)
 AOCL_COMPILE_CONFIG := $(shell aocl compile-config )
 AOCL_LINK_CONFIG := -Wl,--no-as-needed $(shell aocl link-config)
-else 
-AOCL_COMPILE_CONFIG := $(shell aocl compile-config --arm )
-AOCL_LINK_CONFIG := -Wl,--no-as-needed $(shell aocl link-config --arm)
-endif
+AOCL_COMPILE_CONFIG_HW := $(shell aocl compile-config --arm)
+AOCL_LINK_CONFIG_HW := -Wl,--no-as-needed $(shell aocl link-config --arm)
     
 
 # Compilation flags
@@ -88,7 +84,7 @@ $(TARGET_DIR)/$(TARGET_EMU) : Makefile $(SRCS) $(INCS) $(TARGET_DIR)
 
 $(TARGET_DIR)/$(TARGET_HW) : Makefile $(SRCS) $(INCS) $(TARGET_DIR)
 	$(ECHO)$(CROSS-COMPILE)$(CXX) $(CPPFLAGS) $(CXXFLAGS) -fPIC $(foreach D,$(INC_DIRS),-I$D) \
-			$(AOCL_COMPILE_CONFIG) $(SRCS) $(AOCL_LINK_CONFIG) \
+			$(AOCL_COMPILE_CONFIG_HW) $(SRCS) $(AOCL_LINK_CONFIG_HW) \
 			$(foreach D,$(LIB_DIRS),-L$D) \
 			$(foreach L,$(LIBS),-l$L) \
 			-o $(TARGET_DIR)/$(TARGET_HW)
@@ -96,25 +92,16 @@ $(TARGET_DIR)/$(TARGET_HW) : Makefile $(SRCS) $(INCS) $(TARGET_DIR)
 $(TARGET_DIR) :
 	$(ECHO)mkdir $(TARGET_DIR)
 
-run-emu: $(TARGET_DIR)/$(TARGET_EMU)
+run_emu_sample: $(TARGET_DIR)/$(TARGET_EMU)
 	CL_CONTEXT_EMULATOR_DEVICE_ALTERA=1 $(TARGET_DIR)/$(TARGET_EMU) -mode=sample \
 		-img=/home/osboxes/Development/harbin_labs/opencl-src/mnist-altera/mnist_test_img_0.pgm
 
-run-hw: $(TARGET_DIR)/$(TARGET_HW)
-	$(TARGET_DIR)/$(TARGET_HW) -mode=sample \
-		-img=/home/osboxes/Development/harbin_labs/opencl-src/mnist-altera/mnist_test_img_0.pgm
-
-test: $(TARGET_DIR)/$(TARGET_EMU)
+run_emu_test: $(TARGET_DIR)/$(TARGET_EMU)
 	CL_CONTEXT_EMULATOR_DEVICE_ALTERA=1 $(TARGET_DIR)/$(TARGET_EMU) -mode=test \
 		-dir=/home/osboxes/Development/harbin_labs/imgs/mnist-testset \
 		-list=/home/osboxes/Development/harbin_labs/imgs/mnist_test_img_list.csv \
 		-n=-1
 
-test-hw: $(TARGET_DIR)/$(TARGET_HW)
-	$(TARGET_DIR)/$(TARGET_HW) -mode=test \
-		-dir=/home/osboxes/Development/harbin_labs/imgs/mnist-testset \
-		-list=/home/osboxes/Development/harbin_labs/imgs/mnist_test_img_list.csv \
-		-n=-1
 # Standard make targets
 clean :
 	$(ECHO)rm -f $(TARGET_DIR)/$(TARGET_EMU)
